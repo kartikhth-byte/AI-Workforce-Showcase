@@ -35,6 +35,9 @@ flowchart TD
     A --> H[Hermes / OpenClaw agent]
     H -->|Validated result via adapter| B[Broker]
     B --> D[(Shared DurableStore)]
+    %% Blank footer keeps GitHub pan/zoom controls clear of content.
+    D ~~~ footer["<br/><br/><br/><br/><br/><br/>"]
+    style footer fill:transparent,stroke:transparent,color:transparent
 ```
 
 The coordinator dispatches through role-specific adapters and shares the Broker's `DurableStore`. The Broker validates and authorizes artifact commitment, lineage, and replay; it is not the general agent transport. Persisted cross-agent artifacts and workflow effects remain subordinate to deterministic Broker checks. Interactive harness chat responses do not universally pass through the Broker.

@@ -19,6 +19,7 @@ config:
     diagramMarginX: 4
     messageMargin: 28
     wrap: true
+    bottomMarginAdj: 150
 ---
 sequenceDiagram
     participant P as Pepper
@@ -42,6 +43,7 @@ config:
     diagramMarginX: 4
     messageMargin: 28
     wrap: true
+    bottomMarginAdj: 150
 ---
 sequenceDiagram
     participant C as Coord.
@@ -66,6 +68,7 @@ config:
     diagramMarginX: 4
     messageMargin: 28
     wrap: true
+    bottomMarginAdj: 150
 ---
 sequenceDiagram
     participant A as Adapter

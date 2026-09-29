@@ -20,6 +20,9 @@ flowchart TD
     A --> H[Hermes / OpenClaw]
     H -->|Result via adapter validation| B[Broker checks]
     B --> D[(Shared DurableStore)]
+    %% Blank footer keeps GitHub pan/zoom controls clear of content.
+    D ~~~ footer["<br/><br/><br/><br/><br/><br/>"]
+    style footer fill:transparent,stroke:transparent,color:transparent
 ```
 
 The coordinator calls the adapter; the adapter invokes the agent harness, validates its response, and submits the artifact to the Broker. The Broker authorizes and validates persistence, records lineage, and enforces replay bindings. Spend and approval checks precede supervised advancement. Jev supplies advisory classifications only.
@@ -40,6 +43,9 @@ flowchart TD
     M --> V[(Partitioned Obsidian vault)]
     V ~~~ R
     R[Reviewed provider adapters] -->|Credential references| K[macOS Keychain boundary]
+    %% Blank footer keeps GitHub pan/zoom controls clear of content.
+    K ~~~ footer["<br/><br/><br/><br/><br/><br/>"]
+    style footer fill:transparent,stroke:transparent,color:transparent
 ```
 
 Hermes profiles for Pepper, Lex, and SpongeBob and Kent's OpenClaw profile each bind their own identity at the MCP boundary. The MCP service checks that identity and permitted partitions on access; vault traffic does not pass through the Broker. The credential route is a separate boundary, not a vault capability. Profiles may expose memory tools while a particular fixed dispatch further restricts their use.
@@ -84,17 +90,25 @@ Three fixed workflows are implemented:
 2. `pepper-kent-lex-article-v1`
 3. `pepper-kent-spongebob-opportunity-v1`
 
-The primary lifecycle below shows successful dispatch and ambiguous results. `waiting_for_agent` means an ambiguous result, not a mandatory state for every dispatch.
+The primary lifecycle below shows dispatch claims (`pending` → `running`), successful completion, and ambiguous results. Recovery either claims a retry or next step (`running`), or reconciles the final committed result (`completed`). `waiting_for_agent` means an ambiguous result, not a mandatory state for every dispatch.
 
 ```mermaid
-stateDiagram-v2
-    direction TB
-    [*] --> pending
-    pending --> running: claim dispatch
-    running --> completed: reconcile + settle
-    running --> waiting_for_agent: ambiguous result
-    waiting_for_agent --> running: retry / next step
-    waiting_for_agent --> completed: final result
+---
+config:
+  flowchart:
+    nodeSpacing: 12
+    rankSpacing: 24
+    padding: 8
+---
+flowchart TD
+    P[pending] --> R[running]
+    R --> W[waiting_for_agent]
+    W --> R
+    R --> C[completed]
+    W --> C
+    %% Blank footer keeps GitHub pan/zoom controls clear of content.
+    C ~~~ footer["<br/><br/><br/><br/><br/><br/>"]
+    style footer fill:transparent,stroke:transparent,color:transparent
 ```
 
 | Terminal transition | Implemented behavior |
@@ -121,6 +135,9 @@ flowchart TD
     S -->|Absent| L[Check lease]
     C --> N[Next step<br/>or complete]
     L --> A[Free: claim dispatch<br/>Held: return status]
+    %% Blank footer keeps GitHub pan/zoom controls clear of content.
+    A & N ~~~ footer["<br/><br/><br/><br/><br/><br/>"]
+    style footer fill:transparent,stroke:transparent,color:transparent
 ```
 
 Execution is **at least once**. The caller supplies a durable `workflow_id`; identical requests under the same definition/version and ID resolve to the existing run, while conflicting reuse is rejected. Internal dispatch effects use step-specific idempotency keys. Recovery checks committed Broker effects before retry and does not promise exactly-once harness execution.
