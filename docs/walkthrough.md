@@ -17,6 +17,7 @@ config:
     width: 85
     actorMargin: 12
     diagramMarginX: 4
+    diagramMarginY: 40
     messageMargin: 28
     wrap: true
     bottomMarginAdj: 150
@@ -41,6 +42,7 @@ config:
     width: 85
     actorMargin: 12
     diagramMarginX: 4
+    diagramMarginY: 40
     messageMargin: 28
     wrap: true
     bottomMarginAdj: 150
@@ -66,6 +68,7 @@ config:
     width: 85
     actorMargin: 12
     diagramMarginX: 4
+    diagramMarginY: 40
     messageMargin: 28
     wrap: true
     bottomMarginAdj: 150
