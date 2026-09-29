@@ -1,0 +1,88 @@
+{
+  "as_of": "2026-09-30",
+  "project": "AI Workforce",
+  "scope": "aggregate portfolio evidence; no private artifacts or credentials",
+  "runtime": {
+    "tests_passed": 234,
+    "python": "3.12",
+    "fixed_workflow_definitions": 3,
+    "configured_agents": 4,
+    "deferred_agents": [
+      "Skippy"
+    ],
+    "harnesses": [
+      "Hermes",
+      "OpenClaw"
+    ]
+  },
+  "workflows": {
+    "definitions": [
+      "pepper-kent-research-v1",
+      "pepper-kent-lex-article-v1",
+      "pepper-kent-spongebob-opportunity-v1"
+    ],
+    "article_record": {
+      "kent_dispatch_attempts": 1,
+      "lex_dispatch_attempts": 1,
+      "exact_lineage": true,
+      "draft_characters": 2270
+    },
+    "ambiguous_outcome_record": {
+      "dispatch_attempts": 1,
+      "reconciled_before_retry": true
+    }
+  },
+  "jev": {
+    "authority": "advisory_only",
+    "retained_classifier_cases": 99,
+    "retained_classifier_calls": 198,
+    "contracts": [
+      {
+        "name": "pepper_inbound_routing",
+        "cases": 25,
+        "calls": 50,
+        "raw_accuracy_percent": 100.0,
+        "confidently_correct_percent": 90.0,
+        "repeat_agreement_percent": 100.0
+      },
+      {
+        "name": "kent_source_type",
+        "cases": 25,
+        "calls": 50,
+        "accuracy_percent": 100.0,
+        "repeat_agreement_percent": 100.0
+      },
+      {
+        "name": "kent_claim_evidence_relation",
+        "cases": 24,
+        "calls": 48,
+        "raw_accuracy_percent": 95.83,
+        "confident_coverage_percent": 72.92,
+        "confident_precision_percent": 100.0,
+        "repeat_agreement_percent": 100.0
+      },
+      {
+        "name": "spongebob_opportunity_type",
+        "cases": 25,
+        "calls": 50,
+        "kind_accuracy_percent": 100.0,
+        "repeat_agreement_percent": 100.0
+      }
+    ],
+    "non_authorizing_skill_signal": {
+      "cases": 24,
+      "calls": 48,
+      "accuracy_percent": 91.67,
+      "required_gate_percent": 95.0,
+      "gate_passed": false
+    },
+    "observability_tests_passed": 25
+  },
+  "limitations": [
+    "single local macOS host",
+    "fixed workflows only",
+    "no autonomous publishing or applications",
+    "LinkedIn remains supervised and read-only",
+    "model evaluations use bounded contract-specific cases"
+  ]
+}

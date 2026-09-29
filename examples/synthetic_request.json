@@ -1,0 +1,7 @@
+{
+  "workflow_definition": "pepper-kent-research-v1",
+  "idempotency_key": "portfolio-demo-001",
+  "topic": "durable multi-agent workflow design",
+  "data_class": "public",
+  "max_dispatches": 1
+}
