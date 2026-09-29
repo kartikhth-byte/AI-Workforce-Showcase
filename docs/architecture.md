@@ -4,42 +4,45 @@
 
 AI Workforce separates **probabilistic execution** from **deterministic authority**. Hermes and OpenClaw can run model/tool loops, but they do not decide what data may cross a boundary, whether an artifact is accepted, whether money may be spent, or whether an external action may occur.
 
+### Execution and control plane
+
 ```mermaid
-flowchart TB
-    subgraph Harnesses[Probabilistic execution]
-        H[Hermes profiles<br/>Pepper · Lex · SpongeBob]
-        O[OpenClaw profile<br/>Kent]
-        J[Jev narrow classifiers<br/>advisory only]
-    end
-
-    subgraph Control[Deterministic control plane]
-        C[Workflow Coordinator]
-        B[Broker]
-        P[Policy + approval checks]
-        V[Schema + evidence validation]
-        G[Spend gate]
-    end
-
-    subgraph State[Authoritative local state]
-        DS[(DurableStore)]
-        AV[(Artifact + lineage records)]
-        KV[macOS Keychain boundary]
-        OB[(Partitioned Obsidian vault)]
-    end
-
-    H --> C
-    O --> B
-    J -. signals .-> P
-    C --> B
-    B --> P
-    B --> V
-    B --> G
-    C <--> DS
-    B <--> DS
-    DS --> AV
-    G -. credential reference only .-> KV
-    B -. bounded notes and proposals .-> OB
+---
+config:
+  flowchart:
+    nodeSpacing: 12
+    rankSpacing: 24
+    padding: 8
+---
+flowchart TD
+    P[User / Pepper] --> C[Workflow Coordinator]
+    C --> A[Role-specific adapter]
+    A --> H[Hermes / OpenClaw]
+    H -->|Result via adapter validation| B[Broker checks]
+    B --> D[(Shared DurableStore)]
 ```
+
+The coordinator calls the adapter; the adapter invokes the agent harness, validates its response, and submits the artifact to the Broker. The Broker authorizes and validates persistence, records lineage, and enforces replay bindings. Spend and approval checks precede supervised advancement. Jev supplies advisory classifications only.
+
+### Data, credential and memory boundaries
+
+```mermaid
+---
+config:
+  flowchart:
+    nodeSpacing: 12
+    rankSpacing: 24
+    padding: 8
+---
+flowchart TD
+    H[Authorized profiles<br/>Pepper · Kent<br/>Lex · SpongeBob]
+    H -->|Separate per-agent connections| M[Second-brain MCP boundary<br/>Identity + partition checks]
+    M --> V[(Partitioned Obsidian vault)]
+    V ~~~ R
+    R[Reviewed provider adapters] -->|Credential references| K[macOS Keychain boundary]
+```
+
+Hermes profiles for Pepper, Lex, and SpongeBob and Kent's OpenClaw profile each bind their own identity at the MCP boundary. The MCP service checks that identity and permitted partitions on access; vault traffic does not pass through the Broker. The credential route is a separate boundary, not a vault capability. Profiles may expose memory tools while a particular fixed dispatch further restricts their use.
 
 ## Control-plane responsibilities
 
@@ -71,7 +74,7 @@ Agents exchange references to committed artifacts instead of sharing unrestricte
 
 ### Model and harness boundary
 
-Each role receives only the tools and data required by its contract. Harness configuration narrows tool catalogs and execution limits, while the Broker independently re-checks meaningful effects. This is defense in depth: a permissive prompt or model mistake cannot create authority the deterministic layer does not grant.
+Each role receives only the tools and data required by its contract. Harness configuration narrows tool catalogs and execution limits, while the Broker independently checks persisted cross-agent artifacts and workflow effects. Interactive harness chat responses do not universally pass through it. This is defense in depth: a permissive prompt or model mistake cannot create authority the deterministic layer does not grant.
 
 ## Durable workflow semantics
 
@@ -81,25 +84,52 @@ Three fixed workflows are implemented:
 2. `pepper-kent-lex-article-v1`
 3. `pepper-kent-spongebob-opportunity-v1`
 
+The primary lifecycle below shows successful dispatch and ambiguous results. `waiting_for_agent` means an ambiguous result, not a mandatory state for every dispatch.
+
 ```mermaid
 stateDiagram-v2
+    direction TB
     [*] --> pending
-    pending --> running: start / acquire lease
-    running --> waiting_for_agent: durable dispatch
-    waiting_for_agent --> running: reconcile committed artifact
-    waiting_for_agent --> failed: timeout or bounded failure
-    running --> waiting_for_approval: policy threshold
-    waiting_for_approval --> running: explicit approval
-    running --> completed: validate + settle budget
-    pending --> cancelled
-    running --> cancelled: stop future steps
-    waiting_for_agent --> cancelled: preserve committed history
-    completed --> [*]
-    failed --> [*]
-    cancelled --> [*]
+    pending --> running: claim dispatch
+    running --> completed: reconcile + settle
+    running --> waiting_for_agent: ambiguous result
+    waiting_for_agent --> running: retry / next step
+    waiting_for_agent --> completed: final result
 ```
 
-Execution is **at least once**. Idempotency keys make Broker effects safe to replay, and recovery checks the authoritative artifact store before another dispatch. Cancellation prevents future steps but never deletes committed artifacts or audit history.
+| Terminal transition | Implemented behavior |
+| --- | --- |
+| `running` → `failed` | A dispatch exception fails the run and releases its reserved budget |
+| `pending`, `running`, or `waiting_for_agent` → `cancelled` | Cancellation stops future steps and preserves committed artifacts and audit history |
+| `completed`, `failed`, `cancelled` | Terminal; normal resume does not restart dispatch |
+
+`waiting_for_approval` is **schema-reserved**, not an implemented coordinator waiting state. Approval thresholds are evaluated before supervised advancement; a denied advance does not persist that reserved state. Lease expiry permits recovery; it is not itself an automatic transition to `failed`.
+
+Recovery is a separate decision, performed before another dispatch:
+
+```mermaid
+---
+config:
+  flowchart:
+    nodeSpacing: 12
+    rankSpacing: 24
+    padding: 8
+---
+flowchart TD
+    R[Resume workflow] --> S[Check step effect]
+    S -->|Found| C[Reconcile artifact]
+    S -->|Absent| L[Check lease]
+    C --> N[Next step<br/>or complete]
+    L --> A[Free: claim dispatch<br/>Held: return status]
+```
+
+Execution is **at least once**. The caller supplies a durable `workflow_id`; identical requests under the same definition/version and ID resolve to the existing run, while conflicting reuse is rejected. Internal dispatch effects use step-specific idempotency keys. Recovery checks committed Broker effects before retry and does not promise exactly-once harness execution.
+
+## Scheduling and external actions
+
+One fixed, reviewed **08:00 Asia/Kolkata Kent briefing** schedule is enabled. It invokes `pepper-kent-research-v1` through a fixed wrapper and provides bounded Telegram delivery and local HTML output. Completed same-day work can be replayed without another Kent dispatch. Free-form or agent-created unattended scheduling remains out of scope.
+
+External actions use selected reviewed adapters governed by deterministic policy and explicit human approval. The Broker is not a universal external-action executor. The briefing's pre-reviewed delivery is a bounded exception; unsupported connectors and consequential external writes remain denied, and publishing, applications, and purchases remain disabled or human-controlled.
 
 ## Data flow and privacy
 

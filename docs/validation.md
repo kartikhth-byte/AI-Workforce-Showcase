@@ -10,7 +10,7 @@ The project uses evidence packages, deterministic proofs, focused tests, full ru
 | Fixed workflow definitions | 3 | Research, research-to-article, research-to-opportunity-fit |
 | Coordinator lifecycle | start, status, resume, cancel | Fixed public interface; no arbitrary graph editing |
 | Ambiguous dispatch recovery | 1 attempt | A committed Broker effect is reconciled before retry |
-| Article workflow replay | exact match | Research and draft artifacts retain exact parent lineage |
+| Article workflow replay | exact match | Same workflow ID and identical request resolve to the existing run; draft lineage is artifact-level |
 | Jev observability checkpoint | 25 focused tests passed | Append-only predictions, privacy controls, and separate labels |
 
 The runtime suite includes Unix-domain-socket integration with a local signer authority. Review runs inside a restricted sandbox first observed expected socket denials; the exact permitted local reruns passed. This is an environment boundary, not evidence of multi-host or hosted deployment.
@@ -37,13 +37,19 @@ Earlier broader designs were rejected after evaluation. Jev is not used to decid
 - Credentials are retrieved through the Keychain boundary and are not placed in repository configuration.
 - Private second-brain inputs are excluded from public model routes unless an explicit local redaction contract permits a projection.
 - Browser, messaging, publishing, application submission, schedules, and unattended actions are denied by default and selectively exposed only through reviewed contracts.
-- All model and harness results remain subordinate to deterministic Broker checks.
+- Persisted cross-agent artifacts and workflow effects remain subordinate to deterministic Broker checks. Interactive harness chat responses do not universally pass through the Broker.
+
+The article workflow accepts Kent's research before Lex runs, binds the draft to that artifact, and records a derivation edge. It does not deterministically verify each factual statement against a source; claim-level verification requires the separate editorial-review path. Publishing remains disabled and the final draft requires human review.
+
+One fixed, reviewed **08:00 Asia/Kolkata Kent briefing** schedule invokes a fixed durable research workflow and provides bounded Telegram/HTML delivery. Free-form or agent-created unattended scheduling remains out of scope. External actions use selected reviewed adapters governed by deterministic policy and explicit human approval; unsupported connectors and consequential external writes remain denied.
+
+The **234-test runtime regression** and live figures below are retained private checkpoint evidence, not a new production run performed for this documentation edit.
 
 ## Bounded live evidence
 
 Selected checkpoints used live provider calls under explicit cost caps:
 
-- a five-agent synthetic OpenRouter canary reported USD 0.000187;
+- a five-agent synthetic OpenRouter canary reported USD 0.000190 (the retained route-evidence checkpoint);
 - a supervised five-step OpenRouter workflow reported USD 0.000216;
 - an inert browser executor proof reported USD 0.003496;
 - a supervised public browser proof reported USD 0.001349;
