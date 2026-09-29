@@ -23,6 +23,7 @@ config:
     bottomMarginAdj: 150
 ---
 sequenceDiagram
+    title Prepare run
     participant P as Pepper
     participant C as Coord.
     participant S as Store
@@ -48,6 +49,7 @@ config:
     bottomMarginAdj: 150
 ---
 sequenceDiagram
+    title Dispatch step
     participant C as Coord.
     participant A as Role adapter
     participant H as Agent
@@ -74,6 +76,7 @@ config:
     bottomMarginAdj: 150
 ---
 sequenceDiagram
+    title Commit artifact
     participant A as Adapter
     participant B as Broker
     participant S as Store
